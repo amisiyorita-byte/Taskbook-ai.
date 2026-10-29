@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Taskbook AI</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;font-family:'Plus Jakarta Sans',system-ui,sans-serif}
+body{background:#2D1A12;-webkit-font-smoothing:antialiased}
+.wrap{max-width:480px;margin:0 auto;min-height:100dvh;background:#2D1A12;display:flex;flex-direction:column}
+header{padding:20px 20px 20px;display:flex;justify-content:space-between;align-items:flex-start}
+header h1{color:#fff;font-size:24px;font-weight:800;letter-spacing:-.02em;line-height:1.1}
+header p{color:#A89889;font-size:13px;font-weight:600;margin-top:3px}
+.datebar{background:#F9E79F;padding:13px 20px;display:flex;align-items:center;justify-content:center;gap:8px;color:#2D1A12;font-weight:700;font-size:14px}
+.stats{padding:16px 20px 28px}
+.stats-top{display:flex;justify-content:space-between;margin-bottom:14px}
+.stats-top .page{color:#F9E79F;font-size:13px;font-weight:500}
+.stats-top .count{color:#A89889;font-size:13px;font-weight:500}
+.cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+.card{background:#3A2520;border-radius:20px;padding:16px}
+.card b{color:#F4D35E;font-size:32px;font-weight:800;line-height:1}
+.card span{display:block;color:#C9B8AB;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-top:8px}
+main{background:#fff;border-radius:20px 20px 0 0;flex:1;padding:24px 20px 32px;display:flex;flex-direction:column;margin-top:-12px;box-shadow:0 -8px 24px rgba(0,0,0,.12)}
+.addrow{display:flex;gap:12px}
+.inputwrap{flex:1;height:48px;background:#F5F0E8;border-radius:999px;display:flex;align-items:center;padding:0 8px 0 20px;border:1px solid rgba(0,0,0,.03)}
+.inputwrap input{flex:1;border:0;background:transparent;outline:none;font-size:15px;font-weight:600;color:#2D1A12}
+.inputwrap input::placeholder{color:#A89889}
+.mic{width:36px;height:36px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;border:0;cursor:pointer}
+.addbtn{height:48px;padding:0 24px;border-radius:999px;background:#2D1A12;color:#F9E79F;font-weight:800;font-size:14px;border:0;cursor:pointer}
+.addbtn:active{transform:scale(.97)}
+.task{display:flex;gap:12px;align-items:center;background:rgba(245,240,232,.7);border:1px solid rgba(0,0,0,.04);border-radius:14px;padding:12px 16px;margin-top:10px}
+.check{width:24px;height:24px;border-radius:50%;border:2px solid rgba(168,152,137,.5);background:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;font-size:12px;color:#F9E79F}
+.check.done{background:#2D1A12;border-color:#2D1A12}
+.task span{flex:1;font-size:15px;font-weight:500;line-height:1.3;word-break:break-word;color:#2D1A12}
+.task span.done{opacity:.5;text-decoration:line-through}
+.del{width:28px;height:28px;border-radius:50%;border:0;background:transparent;color:#A89889;cursor:pointer;font-size:18px}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:64px 0;text-align:center}
+.empty .icon{width:72px;height:72px;border-radius:20px;background:#E8F2FF;display:flex;align-items:center;justify-content:center;font-size:32px;margin-bottom:16px}
+.empty h3{font-size:18px;font-weight:700;color:#2D1A12}
+.empty p{color:#A89889;font-size:14px;font-weight:500;margin-top:4px}
+footer{background:#2D1A12;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;color:#F9E79F}
+footer button{background:none;border:0;color:#F9E79F;font-size:13px;font-weight:600;cursor:pointer}
+footer button:disabled{color:#A89889;opacity:.5}
+.pagenum{display:flex;flex-direction:column;align-items:center}
+.pagenum .num{width:36px;height:36px;background:#fff;color:#2D1A12;font-weight:700;font-size:14px;border-radius:50%;display:flex;align-items:center;justify-content:center}
+.pagenum span{color:#E8DCCF;font-size:11px;margin-top:6px}
+@keyframes shake{0%,100%{transform:translateX(0)}25%,75%{transform:translateX(-5px)}50%{transform:translateX(5px)}}
+.shake{animation:shake .45s ease-in-out;border-color:#fca5a5!important;background:#fef2f2!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header><div><h1>Taskbook AI</h1><p>Professional • Strong</p></div></header>
+<div class="datebar">📅 <span id="dateFull"></span></div>
+<section class="stats">
+<div class="stats-top"><span class="page">Page <span id="pageLabel">1</span></span><span class="count"><span id="totalTop">0</span> tasks</span></div>
+<div class="cards">
+<div class="card"><b id="total">0</b><span>Total</span></div>
+<div class="card"><b id="done">0</b><span>Done</span></div>
+<div class="card"><b id="pending">0</b><span>Pending</span></div>
+</div>
+</section>
+<main>
+<div class="addrow">
+<div class="inputwrap" id="inputWrap"><input id="taskInput" placeholder="Add a new task..." autocomplete="off"><button class="mic" id="micBtn" title="Voice">🎙️</button></div>
+<button class="addbtn" id="addBtn">+ Add</button>
+</div>
+<div id="list" style="margin-top:24px"></div>
+<div id="empty" class="empty"><div class="icon">📄</div><h3>No tasks</h3><p>Add your first task</p></div>
+<div style="flex:1"></div>
+</main>
+<footer>
+<button id="prevBtn">&lt; Previous</button>
+<div class="pagenum"><div class="num" id="pageNum">1</div><span id="dateShort"></span></div>
+<button id="nextBtn">Next &gt;</button>
+</footer>
+</div>
+<script>
+// ===== FIXED: Persistence with localStorage =====
+const KEY = 'taskbook-ai-tasks-v1';
+const PAGE_KEY = 'taskbook-ai-page-v1';
+let tasks = {};
+let page = 1;
+try { tasks = JSON.parse(localStorage.getItem(KEY) || '{}') || {}; } catch(e){ tasks={}; }
+try { page = parseInt(localStorage.getItem(PAGE_KEY) || '1') || 1; } catch(e){ page=1; }
+function save(){
+  localStorage.setItem(KEY, JSON.stringify(tasks));
+  localStorage.setItem(PAGE_KEY, String(page));
+}
+const now = new Date();
+document.getElementById('dateFull').textContent = now.toLocaleDateString('en-US',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+document.getElementById('dateShort').textContent = now.toLocaleDateString('en-US',{month:'short',day:'numeric'});
+const input = document.getElementById('taskInput');
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('empty');
+function render(){
+  const list = tasks[page] || [];
+  const done = list.filter(t=>t.done).length;
+  document.getElementById('total').textContent = list.length;
+  document.getElementById('totalTop').textContent = list.length;
+  document.getElementById('done').textContent = done;
+  document.getElementById('pending').textContent = list.length - done;
+  document.getElementById('pageLabel').textContent = page;
+  document.getElementById('pageNum').textContent = page;
+  document.getElementById('prevBtn').disabled = page <= 1;
+  if(list.length===0){ emptyEl.style.display='flex'; listEl.innerHTML=''; return; }
+  emptyEl.style.display='none';
+  listEl.innerHTML='';
+  list.forEach(t=>{
+    const div=document.createElement('div'); div.className='task';
+    const c=document.createElement('button'); c.className='check'+(t.done?' done':''); c.textContent=t.done?'✓':''; c.onclick=()=>{ t.done=!t.done; save(); render(); };
+    const s=document.createElement('span'); s.textContent=t.text; if(t.done) s.className='done';
+    const d=document.createElement('button'); d.className='del'; d.textContent='×'; d.onclick=()=>{ tasks[page]=tasks[page].filter(x=>x.id!==t.id); save(); render(); };
+    div.append(c,s,d); listEl.appendChild(div);
+  });
+}
+function add(){
+  const text = input.value.trim();
+  if(!text){ document.getElementById('inputWrap').classList.add('shake'); setTimeout(()=>document.getElementById('inputWrap').classList.remove('shake'),500); return; }
+  if(!tasks[page]) tasks[page]=[];
+  tasks[page].push({id:Date.now()+''+Math.random().toString(16).slice(2), text, done:false});
+  save(); render(); input.value=''; input.focus();
+}
+document.getElementById('addBtn').onclick=add;
+input.addEventListener('keydown',e=>{ if(e.key==='Enter') add(); });
+document.getElementById('prevBtn').onclick=()=>{ if(page>1){ page--; save(); render(); } };
+document.getElementById('nextBtn').onclick=()=>{ page++; save(); render(); };
+// Voice input (optional)
+document.getElementById('micBtn').onclick=()=>{
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){ alert('Voice not supported on this browser'); return; }
+  const r=new SR(); r.lang='en-US';
+  r.onresult=e=>{ input.value=e.results[0][0].transcript; };
+  r.start();
+};
+render();
+</script>
+</body>
+</html>
